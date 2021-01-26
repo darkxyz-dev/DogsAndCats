@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 namespace CatsandDogs
@@ -51,6 +52,37 @@ namespace CatsandDogs
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void GetACat_Click(object sender, EventArgs e)
+        {
+            string catImage = GetCatImageUrl();
+
+            CatPicture.ImageLocation = catImage;
+            CatPicture.SizeMode = PictureBoxSizeMode.StretchImage;
+        }
+
+        public static string GetCatImageUrl()
+        {
+            string url = "http://api.thecatapi.com/v1/images/search";
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            string catImage;
+
+            var webResponse = request.GetResponse();
+            var webStream = webResponse.GetResponseStream();
+
+            
+            using (var responseReader = new StreamReader(webStream))
+            {
+                var response = responseReader.ReadToEnd();
+                JavaScriptSerializer ser = new JavaScriptSerializer();
+                List<Cat> catList = ser.Deserialize<List<Cat>>(response);
+                catImage = catList[0].url;
+
+               
+            }
+            return catImage;
         }
     }
 }
